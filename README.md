@@ -1,49 +1,70 @@
-# Nandus — Stremio addon
+# Nandus + MZone — Stremio Catalog Addons
 
-Latest **Malayalam**, **Tamil** & **Korean** movies + **Korean series** catalogs for
-Stremio / Nuvio, powered by TMDB. Catalog-only (no streams) — pair it with your
-existing stream addons (TorBox etc.) in Nuvio.
+Two catalog-only Stremio addons (TMDB metadata, no streams) served from one app.
 
-Catalogs:
-- `ml_latest` — Latest Malayalam movies
-- `ta_latest` — Latest Tamil movies
-- `ko_latest` — Latest Korean movies
-- `ko_series` — Korean series
+## Addons
 
-## 1. Get a free TMDB API key
+### 1. Nandus (`/manifest.json`)
+Curated Malayalam / Tamil / Korean catalogs + a Streaming OTT icon row.
 
-1. Sign up free at https://www.themoviedb.org and verify your email.
-2. Log in → click your avatar (top right) → **Settings** → **API** (left sidebar).
-3. Click **Create** → choose **Developer** → accept the terms.
-4. Fill the form (Application Name: `Nandus`, URL: anything) → Submit.
-5. Copy the **API Key (v3 auth)**.
+Rows (in order):
+1. **Streaming** — OTT icon tiles (JioHotstar, Zee5, Sony Liv, Sun NXT, Netflix,
+   Prime Video, aha, Manorama Max, Discovery+, Lionsgate Play, MX Player,
+   Tata Play, Rakuten Viki). Tap an icon for details.
+2. Latest Malayalam Movies
+3. Latest Tamil Movies
+4. Latest Korean Movies
+5. Latest Korean Series
+6. Top Rated Korean Movies
+7. Top Rated Korean Series
+8. Latest Tamil Series
+9. Latest Malayalam Series
+10. Latest Tamil Dubbed Movies
+11. Latest Tamil Dubbed Series
+12. Tamil Dubbed Movies
+13. Tamil Dubbed Series
+14. K-Drama
+15. Documentaries
 
-## 2. Deploy free on Render
+Each title shows a `📺 Streaming: ...` line with its India subscription providers.
 
-1. Put `app.py` + `requirements.txt` in a GitHub repo (upload via github.com web UI).
-2. Sign up free at https://render.com → **New +** → **Web Service** →
-   connect the GitHub repo.
-3. Settings: Build Command `pip install -r requirements.txt`,
-   Start Command `gunicorn app:app`.
-   (Render auto-detects Python; set both if asked.)
-4. **Environment variable**: add `TMDB_API_KEY` = your key from step 1.
-5. Deploy → you get a URL like `https://mtk-catalog.onrender.com`.
+### 2. MZone (`/mzone/manifest.json`)
+World cinema with Malayalam subtitles, curated from malayalamsubtitles.org
+(എംസോൺ — ലോകസിനിമയുടെ മലയാള ജാലകം). Titles are matched to TMDB metadata.
 
-> Note: Render's free tier sleeps after inactivity — first catalog load may take
-> ~30 seconds to wake up. After that it's fast.
+Rows:
+- MZone: New Releases
+- MZone: Trending Today
+- MZone: Random Picks
 
-## 3. Install in Stremio / Nuvio
+Each title notes `📝 Malayalam subtitles: MZone` with the post link.
 
-Addons → Add addon → paste: `https://<your-render-url>/manifest.json` → Install.
+## Deploy (Render)
 
-Open the app → Board/Discover → you'll see the 4 new catalogs.
-Tap any title → streams come from your existing installed stream addons.
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
+- Env var: `TMDB_API_KEY` = your TMDB API key (get one free at
+  https://www.themoviedb.org/settings/api)
+- Optional: `TILE_BASE` = public base URL override for OTT icon tiles
+  (default: auto-detected from the request host).
 
-## Local test
+## Install in Stremio / Nuvio
+
+- Nandus: `https://<your-render-url>/manifest.json`
+- MZone: `https://<your-render-url>/mzone/manifest.json`
+
+Paste the manifest URL in Addons → "Install via URL".
+
+## Local run
 
 ```bash
-export TMDB_API_KEY=your_key_here
 pip install -r requirements.txt
-python app.py
-# open http://localhost:5000/manifest.json
+TMDB_API_KEY=your_key python app.py
 ```
+
+## Notes
+
+- Catalog-only: no streams are provided. Playback uses the user's own stream addons.
+- Dubbed shelves are an approximation (popular non-native-language titles);
+  they don't verify dubbed audio on any specific stream.
+- MZone rows refresh every 12 hours from the site's homepage.
