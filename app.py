@@ -485,6 +485,7 @@ def mzone_manifest():
         "version": "1.2.0",
         "name": "Msone by Nandu10",
         "description": "Msone — world cinema with Malayalam subtitles (TMDB metadata)",
+        "logo": f"{request.url_root.rstrip('/')}/static/msone-logo.png",
         "types": ["movie", "series"],
         "idPrefixes": ["tmdb:"],
         "resources": ["catalog"],
