@@ -14,9 +14,11 @@ Deploy: set TMDB_API_KEY env var, run with gunicorn (see README).
 Install in Stremio/Nuvio: <your-url>/manifest.json
 """
 
+import json
 import os
 import re
 import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -355,138 +357,141 @@ def index():
     return Response(html, mimetype="text/html")
 
 
-# ---------------- MZone addon (separate addon, same hosting) ----------------
-# Curates malayalamsubtitles.org homepage sections (world cinema with
-# Malayalam subtitles) and maps each title to TMDB metadata.
-MZONE_CATALOGS = [
-    {"id": "mzone_new", "type": "movie", "name": "MZone: New Releases",
-     "section": "New Releases"},
-    {"id": "mzone_trending", "type": "movie", "name": "MZone: Trending Today",
-     "section": "Trending Today"},
-    {"id": "mzone_random", "type": "movie", "name": "MZone: Random Picks",
-     "section": "Random Picks"},
-]
-MZONE_TTL = 12 * 3600
-_mzone_cache = {"ts": 0.0, "data": {}}
-_mzone_resolve_cache = {}
+# ---------------- Msone addon (separate addon, same hosting) ----------------
+# Static snapshot of malayalamsubtitles.org (the site blocks datacenter IPs, so
+# live scraping from the server is not possible). Titles pre-resolved to TMDB
+# in mzone_data.json: "sections" (curated homepage rows) + "archive" (full
+# /releases/ crawl). Catalogs are built dynamically: curated rows, All
+# Releases, Movies/Series, one row per language, one row per genre.
+TMDB_GENRES = {
+    28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
+    99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
+    27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance",
+    878: "Science Fiction", 10770: "TV Movie", 53: "Thriller", 10752: "War",
+    37: "Western", 10759: "Action & Adventure", 10762: "Kids", 10763: "News",
+    10764: "Reality", 10765: "Sci-Fi & Fantasy", 10766: "Soap", 10767: "Talk",
+    10768: "War & Politics",
+}
+_mzone_data = None
+_mzone_metas = {}
+_mzone_defs = None
 
 
-def _norm(s):
-    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+def _mzone_lang_of(it):
+    m = re.search(r"/languages/([^/]+)/", it.get("post_url", ""))
+    return m.group(1) if m else "other"
 
 
-def mzone_parse(html):
-    """Extract {section: [(title_en, year, post_url)]} from MZone homepage."""
-    heads = [(m.start(), re.sub(r"<[^>]+>", "", m.group(1)).strip())
-             for m in re.finditer(r"<h[1-4][^>]*>(.*?)</h[1-4]>", html, re.S)]
-    valid = {c["section"] for c in MZONE_CATALOGS}
-    slides = [(m.start(), m.group(1), re.sub(r"\s+", " ", m.group(2)).strip())
-              for m in re.finditer(
-                  r'<div class="slide-title[^"]*">\s*<a href="([^"]+)">\s*(.*?)\s*</a>',
-                  html, re.S)]
-    out = {}
-    for spos, url, raw in slides:
-        sec = None
-        for hpos, hname in heads:
-            if hpos < spos and hname in valid:
-                sec = hname
-        if not sec:
-            continue
-        m = re.match(r"^(.*?)\s*/.*?\(?\b(19\d\d|20\d\d)\)?\s*$", raw)
-        if m:
-            title_en, year = m.group(1).strip(), m.group(2)
-        else:
-            title_en, year = raw.split("/")[0].strip(), ""
-        title_en = re.sub(r"\s+[Ss]eason\s*\d+\s*$", "", title_en)
-        title_en = re.sub(r"\s+S0?\d+\s*$", "", title_en)
-        if title_en:
-            out.setdefault(sec, []).append((title_en, year, url))
-    return out
+def mzone_catalog_defs():
+    """Full catalog list, built from the archive (cached)."""
+    global _mzone_defs
+    if _mzone_defs is not None:
+        return _mzone_defs
+    data = mzone_load()
+    arch = data.get("archive", [])
+    cats = [
+        {"id": "mzone_new", "type": "movie", "name": "Msone: New Releases",
+         "kind": "section", "section": "New Releases"},
+        {"id": "mzone_trending", "type": "movie", "name": "Msone: Trending Today",
+         "kind": "section", "section": "Trending Today"},
+        {"id": "mzone_random", "type": "movie", "name": "Msone: Random Picks",
+         "kind": "section", "section": "Random Picks"},
+        {"id": "mzone_all", "type": "movie", "name": "Msone: All Releases",
+         "kind": "all"},
+        {"id": "mzone_movies", "type": "movie", "name": "Msone: Movies",
+         "kind": "media", "media": "movie"},
+        {"id": "mzone_series", "type": "series", "name": "Msone: Series",
+         "kind": "media", "media": "tv"},
+    ]
+    lc = Counter(_mzone_lang_of(it) for it in arch)
+    for lang, _ in lc.most_common():
+        cats.append({"id": f"mzone_lang_{lang}", "type": "movie",
+                     "name": f"Msone: {lang.replace('-', ' ').title()}",
+                     "kind": "lang", "lang": lang})
+    gc = Counter(g for it in arch for g in it.get("genre_ids", []))
+    for gid, _ in gc.most_common():
+        cats.append({"id": f"mzone_genre_{gid}", "type": "movie",
+                     "name": f"Msone: {TMDB_GENRES.get(gid, f'Genre {gid}')}",
+                     "kind": "genre", "genre_id": gid})
+    _mzone_defs = cats
+    return cats
 
 
-def mzone_resolve(title_en, year):
-    """Map an MZone title to (tmdb_item, 'movie'|'tv'), cached."""
-    key = f"{title_en}|{year}"
-    if key in _mzone_resolve_cache:
-        return _mzone_resolve_cache[key]
-    norm_q = _norm(title_en)
-    exact = close = None
-    for media in ("movie", "tv"):
+def mzone_load():
+    global _mzone_data
+    if _mzone_data is None:
+        p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mzone_data.json")
+        with open(p, encoding="utf-8") as f:
+            _mzone_data = json.load(f)
+    return _mzone_data
+
+
+def mzone_metas(cid):
+    if cid in _mzone_metas:
+        return _mzone_metas[cid]
+    cat = next(c for c in mzone_catalog_defs() if c["id"] == cid)
+    data = mzone_load()
+    kind = cat["kind"]
+    if kind == "section":
+        items = data["sections"].get(cat["section"], [])
+    elif kind == "all":
+        items = data.get("archive", [])
+    elif kind == "media":
+        items = [it for it in data.get("archive", []) if it["media"] == cat["media"]]
+    elif kind == "lang":
+        items = [it for it in data.get("archive", [])
+                 if _mzone_lang_of(it) == cat["lang"]]
+    elif kind == "genre":
+        items = [it for it in data.get("archive", [])
+                 if cat["genre_id"] in it.get("genre_ids", [])]
+    else:
+        items = []
+    metas = []
+    for it in items:
+        disp = it["name"] + (f" / {it['name_ml']}" if it.get("name_ml") else "")
+        m = {
+            "id": f"tmdb:{it['id']}",
+            "type": it["type"],
+            "name": disp,
+            "poster": f"{POSTER}{it['poster_path']}" if it.get("poster_path") else None,
+            "background": f"{BG}{it['backdrop_path']}" if it.get("backdrop_path") else None,
+            "description": ((it.get("overview") or "")
+                            + f"\n\n\U0001F4DD Malayalam subtitles: Msone\n{it['post_url']}").strip(),
+            "releaseInfo": it.get("year") or "",
+            "genres": genre_names(it["media"], it.get("genre_ids")),
+        }
+        metas.append(m)
+    metas = [m for m in metas if m.get("poster")]
+    # streaming providers only for the small curated rows (archive rows would
+    # need thousands of TMDB calls)
+    if kind == "section":
         try:
-            d = tmdb_get(f"/search/{media}", {"query": title_en, "include_adult": "false"})
-        except Exception:
-            continue
-        for r in d.get("results", [])[:6]:
-            t = r.get("title") or r.get("name") or ""
-            n = _norm(t)
-            if not n:
-                continue
-            dy = (r.get("release_date") or r.get("first_air_date") or "")[:4]
-            year_ok = (not year) or (dy == year)
-            if n == norm_q and year_ok and not exact:
-                exact = (r, media)
-            elif (n == norm_q or norm_q in n or n in norm_q) and not close:
-                close = (r, media)
-        if exact:
-            break
-    res = exact or close or (None, None)
-    _mzone_resolve_cache[key] = res
-    return res
-
-
-def mzone_build():
-    now = time.time()
-    if now - _mzone_cache["ts"] < MZONE_TTL and _mzone_cache["data"]:
-        return _mzone_cache["data"]
-    data = {}
-    try:
-        html = requests.get(
-            "https://malayalamsubtitles.org/",
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-            timeout=25).text
-        sections = mzone_parse(html)
-        for cat in MZONE_CATALOGS:
-            metas = []
-            raws = []
-            for title_en, year, post_url in sections.get(cat["section"], [])[:20]:
-                r, media = mzone_resolve(title_en, year)
-                if not r:
-                    continue
-                ctype = "movie" if media == "movie" else "series"
-                m = to_meta(r, ctype, media)
-                desc = m.get("description") or ""
-                m["description"] = (
-                    desc + f"\n\n📝 Malayalam subtitles: MZone\n{post_url}").strip()
-                metas.append(m)
-                raws.append((r, media))
             with ThreadPoolExecutor(max_workers=10) as ex:
-                provs = list(ex.map(lambda rm: get_providers(rm[1], rm[0].get("id")), raws))
+                provs = list(ex.map(lambda it: get_providers(it["media"], it["id"]), items))
             for m, p in zip(metas, provs):
                 if p:
-                    m["description"] = (
-                        m["description"] + "\n\n📺 Streaming: " + ", ".join(p)).strip()
-            data[cat["id"]] = metas
-    except Exception as e:
-        data = {"error": str(e)}
-    _mzone_cache["ts"] = now
-    _mzone_cache["data"] = data
-    return data
+                    m["description"] = (m["description"] + "\n\n\U0001F4FA Streaming: "
+                                        + ", ".join(p)).strip()
+        except Exception:
+            pass
+    _mzone_metas[cid] = metas
+    return metas
 
 
 @app.route("/mzone/manifest.json")
 def mzone_manifest():
     return jsonify({
         "id": "com.mzone.catalog",
-        "version": "1.0.0",
-        "name": "MZone",
-        "description": "MZone — world cinema with Malayalam subtitles (TMDB metadata)",
+        "version": "1.2.0",
+        "name": "Msone by Nandu10",
+        "description": "Msone — world cinema with Malayalam subtitles (TMDB metadata)",
         "types": ["movie", "series"],
         "idPrefixes": ["tmdb:"],
         "resources": ["catalog"],
         "catalogs": [
             {"type": c["type"], "id": c["id"], "name": c["name"],
              "extra": [{"name": "skip", "isRequired": False}]}
-            for c in MZONE_CATALOGS
+            for c in mzone_catalog_defs()
         ],
     })
 
@@ -495,17 +500,19 @@ def mzone_manifest():
 def mzone_catalog(ctype, cid):
     if not TMDB_API_KEY:
         return jsonify({"metas": [], "error": "TMDB_API_KEY not configured"}), 500
-    cat = next((c for c in MZONE_CATALOGS if c["id"] == cid), None)
+    cat = next((c for c in mzone_catalog_defs() if c["id"] == cid), None)
     if not cat:
         return jsonify({"metas": []}), 404
-    data = mzone_build()
-    if "error" in data:
-        return jsonify({"metas": [], "error": data["error"]}), 502
+    try:
+        metas = mzone_metas(cid)
+    except Exception as e:
+        return jsonify({"metas": [], "error": str(e)}), 502
     try:
         skip = int(request.args.get("skip", "0"))
     except ValueError:
         skip = 0
-    return jsonify({"metas": data.get(cid, [])[skip:skip + 20]})
+    return jsonify({"metas": metas[skip:skip + 20]})
+
 
 
 if __name__ == "__main__":

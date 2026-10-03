@@ -1,4 +1,4 @@
-# Nandus + MZone — Stremio Catalog Addons
+# Nandus + Msone — Stremio Catalog Addons
 
 Two catalog-only Stremio addons (TMDB metadata, no streams) served from one app.
 
@@ -28,16 +28,22 @@ Rows (in order):
 
 Each title shows a `📺 Streaming: ...` line with its India subscription providers.
 
-### 2. MZone (`/mzone/manifest.json`)
-World cinema with Malayalam subtitles, curated from malayalamsubtitles.org
-(എംസോൺ — ലോകസിനിമയുടെ മലയാള ജാലകം). Titles are matched to TMDB metadata.
+### 2. Msone (`/mzone/manifest.json`)
+The complete malayalamsubtitles.org collection (എംസോൺ — ലോകസിനിമയുടെ മലയാള
+ജാലകം): every post matched to TMDB metadata, cards show "English / മലയാളം"
+titles like the site.
 
-Rows:
-- MZone: New Releases
-- MZone: Trending Today
-- MZone: Random Picks
+Rows (113 total):
+- Msone: New Releases / Trending Today / Random Picks (curated)
+- Msone: All Releases (full archive, ~3,300 titles)
+- Msone: Movies / Msone: Series
+- One row per language (Msone: English, Korean, Hindi, Japanese, French…) — 84
+- One row per genre (Msone: Drama, Action, Horror, Comedy…) — 23
 
-Each title notes `📝 Malayalam subtitles: MZone` with the post link.
+Each title notes `📝 Malayalam subtitles: Msone` with the post link.
+
+Note: the site blocks datacenter IPs, so the catalog is served from a static
+snapshot (`mzone_data.json`, generated 2026-10-04) instead of live scraping.
 
 ## Deploy (Render)
 
@@ -51,7 +57,7 @@ Each title notes `📝 Malayalam subtitles: MZone` with the post link.
 ## Install in Stremio / Nuvio
 
 - Nandus: `https://<your-render-url>/manifest.json`
-- MZone: `https://<your-render-url>/mzone/manifest.json`
+- Msone: `https://<your-render-url>/mzone/manifest.json`
 
 Paste the manifest URL in Addons → "Install via URL".
 
