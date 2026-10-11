@@ -609,7 +609,7 @@ def mzone_meta(mtype, mid):
 def mzone_manifest():
     return jsonify({
         "id": "com.mzone.catalog",
-        "version": "1.2.9",
+        "version": "1.2.11",
         "name": "Msone by Nandu10",
         "description": "Msone — world cinema with Malayalam subtitles (TMDB metadata)",
         "logo": f"{request.url_root.rstrip('/')}/static/msone-logo.png",
