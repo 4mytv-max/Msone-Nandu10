@@ -1,7 +1,23 @@
 {
- "generated": "2026-10-11",
+ "generated": "2026-10-14",
  "sections": {
   "New Releases": [
+   {
+    "id": 1101412,
+    "type": "movie",
+    "media": "movie",
+    "name": "Fall 2: Deadpoint",
+    "name_ml": "ഫോൾ 2: ഡെഡ്പോയിന്റ്",
+    "year": "2026",
+    "poster_path": "/fgSm5ylwiXbIHn8UbUXDjk9RRu4.jpg",
+    "backdrop_path": "/yBDxqDB29kpH9VojTytjGWBgmdJ.jpg",
+    "overview": "On a perilous climb across Thailand's Mount Kwan, two climbers become trapped thousands of feet above the ground, where vertigo-inducing heights, sheer exposure, and impossible odds turn every moment into a fight for survival.",
+    "genre_ids": [
+     53
+    ],
+    "post_url": "https://malayalamsubtitles.org/languages/english/fall-2-deadpoint-2026/",
+    "imdb_id": "tt31192372"
+   },
    {
     "id": 1560520,
     "type": "movie",
@@ -158,23 +174,6 @@
     ],
     "post_url": "https://malayalamsubtitles.org/languages/japanese/the-garden-of-words-2013/",
     "imdb_id": "tt2591814"
-   },
-   {
-    "id": 1275779,
-    "type": "movie",
-    "media": "movie",
-    "name": "Disclosure Day",
-    "name_ml": "ഡിസ്ക്ലോഷർ ഡേ",
-    "year": "2026",
-    "poster_path": "/AnJ8IQJI23hNpYXVNaythu061Ru.jpg",
-    "backdrop_path": "/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
-    "overview": "A cybersecurity expert becomes a whistleblower after uncovering secrets about aliens, putting him on the run from a corporation. Meanwhile, a meteorologist experiencing strange phenomena joins forces with him to prove there's life beyond our understanding.",
-    "genre_ids": [
-     878,
-     53
-    ],
-    "post_url": "https://malayalamsubtitles.org/languages/english/disclosure-day-2026/",
-    "imdb_id": "tt15047880"
    }
   ],
   "Trending Today": [
@@ -509,6 +508,22 @@
   ]
  },
  "archive": [
+  {
+   "id": 1101412,
+   "type": "movie",
+   "media": "movie",
+   "name": "Fall 2: Deadpoint",
+   "name_ml": "ഫോൾ 2: ഡെഡ്പോയിന്റ്",
+   "year": "2026",
+   "poster_path": "/fgSm5ylwiXbIHn8UbUXDjk9RRu4.jpg",
+   "backdrop_path": "/yBDxqDB29kpH9VojTytjGWBgmdJ.jpg",
+   "overview": "On a perilous climb across Thailand's Mount Kwan, two climbers become trapped thousands of feet above the ground, where vertigo-inducing heights, sheer exposure, and impossible odds turn every moment into a fight for survival.",
+   "genre_ids": [
+    53
+   ],
+   "post_url": "https://malayalamsubtitles.org/languages/english/fall-2-deadpoint-2026/",
+   "imdb_id": "tt31192372"
+  },
   {
    "id": 1560520,
    "type": "movie",
