@@ -1,7 +1,43 @@
 {
- "generated": "2026-10-14",
+ "generated": "2026-10-18",
  "sections": {
   "New Releases": [
+   {
+    "id": 1058424,
+    "type": "movie",
+    "media": "movie",
+    "name": "Hope",
+    "name_ml": "ഹോപ്പ്",
+    "year": "2026",
+    "poster_path": "/qW1m7bcsRb2lo8xG2v0p4mARyH8.jpg",
+    "backdrop_path": "/ujUwzNV8ZkOzZonvhhHsc9KOKDf.jpg",
+    "overview": "In the remote South Korean village of Hope Harbor, police chief Bum-seok and officer Sung-ae are called to investigate a mysterious creature wreaking havoc on the community. But all is not as it seems, and perceptions can be misleading. What begins as ignorance plants the seed of disaster, escalating through human conflict into a tragedy of cosmic proportions.",
+    "genre_ids": [
+     878,
+     9648,
+     28
+    ],
+    "post_url": "https://malayalamsubtitles.org/languages/korean/hope-2026/",
+    "imdb_id": "tt27369017"
+   },
+   {
+    "id": 975511,
+    "type": "movie",
+    "media": "movie",
+    "name": "The Return",
+    "name_ml": "ദി റിട്ടേൺ",
+    "year": "2024",
+    "poster_path": "/xSj6EbdwHs3MFT2tRj9L3I7TE5j.jpg",
+    "backdrop_path": "/vgT0kAaWU88do5RrCfHhXRVPnXM.jpg",
+    "overview": "After twenty years away, Odysseus washes up on the shores of Ithaca, haggard and unrecognizable. The king has finally returned home, but much has changed in his kingdom since he left to fight in the Trojan war.",
+    "genre_ids": [
+     36,
+     18,
+     12
+    ],
+    "post_url": "https://malayalamsubtitles.org/languages/english/the-return-2024/",
+    "imdb_id": "tt19861162"
+   },
    {
     "id": 1101412,
     "type": "movie",
@@ -138,42 +174,6 @@
     ],
     "post_url": "https://malayalamsubtitles.org/languages/indonesian/the-raid-redemption-2011/",
     "imdb_id": "tt1899353"
-   },
-   {
-    "id": 1204680,
-    "type": "movie",
-    "media": "movie",
-    "name": "Coyote vs. Acme",
-    "name_ml": "കയോട്ടി vs. ആക്മി",
-    "year": "2026",
-    "poster_path": "/kYDCl2y0VPvhT5eYWbMRInPoB03.jpg",
-    "backdrop_path": "/viZqGq9TNvQ5uXSD4ahg2RpRONT.jpg",
-    "overview": "After Acme products fail him one too many times in his dogged pursuit of the Roadrunner, Wile E. Coyote decides to hire a billboard lawyer to sue the Acme Corporation.",
-    "genre_ids": [
-     35,
-     12,
-     10751
-    ],
-    "post_url": "https://malayalamsubtitles.org/languages/english/coyote-vs-acme-2026/",
-    "imdb_id": "tt1756855"
-   },
-   {
-    "id": 198375,
-    "type": "movie",
-    "media": "movie",
-    "name": "The Garden of Words",
-    "name_ml": "ദ ഗാർഡൻ ഓഫ് വേഡ്സ്",
-    "year": "2013",
-    "poster_path": "/mXUCVq3HMtS4Y9IQ8vmEOPyN0vH.jpg",
-    "backdrop_path": "/qMNmdJG0WFNXcI6hfZMQH0geHc5.jpg",
-    "overview": "Takao, who is training to become a shoemaker, skipped school and is sketching shoes in a Japanese-style garden. He meets a mysterious woman, Yukino, who is older than him. Then, without arranging the times, the two start to see each other again and again, but only on rainy days. They deepen their relationship and open up to each other. But the end of the rainy season soon approaches.",
-    "genre_ids": [
-     16,
-     18,
-     10749
-    ],
-    "post_url": "https://malayalamsubtitles.org/languages/japanese/the-garden-of-words-2013/",
-    "imdb_id": "tt2591814"
    }
   ],
   "Trending Today": [
@@ -508,6 +508,42 @@
   ]
  },
  "archive": [
+  {
+   "id": 1058424,
+   "type": "movie",
+   "media": "movie",
+   "name": "Hope",
+   "name_ml": "ഹോപ്പ്",
+   "year": "2026",
+   "poster_path": "/qW1m7bcsRb2lo8xG2v0p4mARyH8.jpg",
+   "backdrop_path": "/ujUwzNV8ZkOzZonvhhHsc9KOKDf.jpg",
+   "overview": "In the remote South Korean village of Hope Harbor, police chief Bum-seok and officer Sung-ae are called to investigate a mysterious creature wreaking havoc on the community. But all is not as it seems, and perceptions can be misleading. What begins as ignorance plants the seed of disaster, escalating through human conflict into a tragedy of cosmic proportions.",
+   "genre_ids": [
+    878,
+    9648,
+    28
+   ],
+   "post_url": "https://malayalamsubtitles.org/languages/korean/hope-2026/",
+   "imdb_id": "tt27369017"
+  },
+  {
+   "id": 975511,
+   "type": "movie",
+   "media": "movie",
+   "name": "The Return",
+   "name_ml": "ദി റിട്ടേൺ",
+   "year": "2024",
+   "poster_path": "/xSj6EbdwHs3MFT2tRj9L3I7TE5j.jpg",
+   "backdrop_path": "/vgT0kAaWU88do5RrCfHhXRVPnXM.jpg",
+   "overview": "After twenty years away, Odysseus washes up on the shores of Ithaca, haggard and unrecognizable. The king has finally returned home, but much has changed in his kingdom since he left to fight in the Trojan war.",
+   "genre_ids": [
+    36,
+    18,
+    12
+   ],
+   "post_url": "https://malayalamsubtitles.org/languages/english/the-return-2024/",
+   "imdb_id": "tt19861162"
+  },
   {
    "id": 1101412,
    "type": "movie",
